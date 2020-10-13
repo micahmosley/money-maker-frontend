@@ -1,7 +1,13 @@
 import React from 'react';
 
 const Home = (props) => (
-  <h1>hello</h1>
+  <div>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <h1>Welcome to Home page</h1>
+  </div>
 )
 
 export default Home
