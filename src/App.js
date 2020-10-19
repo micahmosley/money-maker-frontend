@@ -9,6 +9,10 @@ import Account from './Components/Account';
 import Sport from './Components/Sport';
 import Sports from './Containers/Sports';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Rules from './Components/Rules';
+import Cashier from './Components/Cashier';
+import ShowBets from './Components/ShowBets';
+import Grade from './Components/Grade';
 
 
 class App extends React.Component {
@@ -19,10 +23,15 @@ class App extends React.Component {
     username: "",
     passwordChange: false,
     currentData: [],
-    betCounter: 0,
     currentSport: "",
     selectedLines: [],
     multiplier: 1,
+    risk: 0,
+    showLines: [],
+    showBets: [],
+    winnerLinesToGrade: [],
+    loserLinesToGrade: [],
+    showBetsType: "",
 
   }
 
@@ -39,9 +48,11 @@ class App extends React.Component {
     e.target.password.value = ''
     let configObj = {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "http://localhost:3000"
       },
       body: JSON.stringify({
         username: username,
@@ -109,13 +120,13 @@ class App extends React.Component {
 
     let odds = []
     // get spread odds
-    fetch(`https://api.the-odds-api.com/v3/odds/?apiKey=a4fac94d5002d00c1e909c3aef0b09bd&sport=${sport}&region=${region}&mkt=spreads&dateFormat=iso`)
+    fetch(`https://api.the-odds-api.com/v3/odds/?apiKey=73b6f6a8bb620ed0f86db00d45b8341c&sport=${sport}&region=${region}&mkt=spreads`)
       .then(resp => resp.json())
       .then(data => {
         odds = data.data
 
         //get moneyline odds and combine them with the spread odds 
-        fetch(`https://api.the-odds-api.com/v3/odds/?apiKey=a4fac94d5002d00c1e909c3aef0b09bd&sport=${sport}&region=${region}&mkt=h2h&dateFormat=iso`)
+        fetch(`https://api.the-odds-api.com/v3/odds/?apiKey=73b6f6a8bb620ed0f86db00d45b8341c&sport=${sport}&region=${region}&mkt=h2h`)
           .then(resp => resp.json())
           .then(data => {
             data.data.forEach((game) => {
@@ -126,7 +137,7 @@ class App extends React.Component {
                 }
               })
             })
-            
+
             setTimeout(() => {
               this.setState({
                 currentData: odds,
@@ -143,23 +154,22 @@ class App extends React.Component {
   }
 
   //handle a line selection from the sport page
-  handleLineSelection=(e)=>{
-    if (e.target.getAttribute('select')==="false"){
-        this.addToSelectedLines(e.target)
-    }else {
-        this.subtractFromSelectedLines(e.target, "fromSport")
+  handleLineSelection = (e) => {
+    if (e.target.getAttribute('select') === "false") {
+      this.addToSelectedLines(e.target)
+    } else {
+      this.subtractFromSelectedLines(e.target, "fromSport")
     }
-}
+  }
 
 
   //Add bet selections to state to be passed to betslip
   addToSelectedLines = (selection) => {
-    console.log(selection)
     let lines = [...this.state.selectedLines]
     //check to see if current selection is from the same game as any of the other selections in Betslip if so do not add it
-    let duplicates = lines.filter((line) => line.home_team === selection.getAttribute('class'))
+    let duplicates = lines.filter((line) => line.getAttribute('class') === selection.getAttribute('class'))
     if (duplicates.length === 0) {
-      lines.push({ team: selection.getAttribute('team'), type: selection.getAttribute('type'), odds: selection.innerText, home_team: selection.getAttribute('class') })
+      lines.push(selection)
       this.setState({
         selectedLines: lines
       })
@@ -172,18 +182,16 @@ class App extends React.Component {
   }
 
   subtractFromSelectedLines = (selection, location) => {
-    console.log(selection)
-    //Un-highlight the clicked on line selection
-    selection.setAttribute('select', "false")
     //Remove the selected line from the selectedLines array
     let lines = [...this.state.selectedLines]
-    if (location==="fromSport"){
-      lines = lines.filter((line) => line.team !== selection.getAttribute('team'))
+    if (location === "fromSport") {
+      //Un-highlight the clicked on line selection
+      selection.setAttribute('select', "false")
+      lines = lines.filter((line) => line.getAttribute('team') !== selection.getAttribute('team'))
     } else {
-      console.log(selection.querySelector('div').innerText)
-      lines = lines.filter((line) => line.team !== selection.querySelector('div').innerText)
+      lines = lines.filter((line) => line.getAttribute('team') !== selection.querySelector('div').innerText)
     }
-    
+
     this.setState({
       selectedLines: lines
     })
@@ -194,10 +202,10 @@ class App extends React.Component {
   currentMultiplier = (lines) => {
     let multiplier = 1
     lines.forEach((line) => {
-      if (line.type === 'moneyline') {
-        multiplier *= line.odds
+      if (line.getAttribute('type') === 'moneyline') {
+        multiplier *= line.innerText
       } else {
-        multiplier *= line.odds.split(" ")[1]
+        multiplier *= line.getAttribute('odds')
       }
     })
     this.setState({
@@ -205,42 +213,350 @@ class App extends React.Component {
     })
   }
 
+  makeDeposit = (amount) => {
 
-
-  render() {
-    return (
-      <React.Fragment>
-        <Router>
-          <Navigation logout={this.logout} userId={this.state.userId} />
-          <Switch>
-            <div className="main">
-              <Route exact path="/" component={Home} />
-              <Route exact path="/signup" render={(props) => (
-                <SignUp userCreateOrLogin={this.userCreateOrLogin} />
-              )} />
-              <Route exact path="/login" render={(props) => (
-                <Login userCreateOrLogin={this.userCreateOrLogin} />
-              )} />
-              <Route exact path="/account" render={(props) => (
-                <Account logout={this.logout} passwordChange={this.state.passwordChange} editPassword={this.editPassword} balance={this.state.balance} username={this.state.username} />
-              )} />
-              <Route exact path="/menu" render={(props) => (this.state.userId === 0 ?
-                <Login userCreateOrLogin={this.userCreateOrLogin} /> :
-                null
-              )} />
-              <Route exact path="/sports" render={(props) => (
-                <Sports getSportOdds={this.getSportOdds} />
-              )} />
-              <Route exact path="/sport" render={(props) => (
-                <Sport subtractFromSelectedLines={this.subtractFromSelectedLines} handleLineSelection={this.handleLineSelection} selectedLines={this.state.selectedLines} multiplier={this.state.multiplier} currentSport={this.state.currentSport} currentData={this.state.currentData} betCounter={this.state.betCounter} />
-
-              )} />
-            </div>
-          </Switch>
-        </Router>
-      </React.Fragment>
-    );
+    let configObj = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        deposit: parseInt(amount),
+        userId: this.state.userId
+      })
+    }
+    fetch(`http://localhost:3001/users/${this.state.userId}`, configObj)
+      .then(resp => resp.json())
+      .then(user => {
+        this.setState({
+          balance: user.balance
+        })
+      })
   }
+
+  makeWithdraw = (amount) => {
+
+    let configObj = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        withdraw: parseInt(amount),
+        userId: this.state.userId
+      })
+    }
+    fetch(`http://localhost:3001/users/${this.state.userId}`, configObj)
+      .then(resp => resp.json())
+      .then(user => {
+        this.setState({
+          balance: user.balance
+        })
+      })
+  }
+
+  setRisk = (risk) => {
+    this.setState({
+      risk: risk
+    })
+  }
+
+  submitBets = () => {
+    let lines = [...this.state.selectedLines]
+    let length = lines.length
+    let betType = "Single Bet"
+    //Clear betslip and un-highlight any line selections
+    lines.forEach((line) => {
+      this.subtractFromSelectedLines(line, "fromSport")
+    })
+    this.setState({
+      selectedLines: [],
+      balance: this.state.balance - this.state.risk
+    })
+
+    if (length > 1) {
+      betType = `${length} Team Parlay`
+    }
+
+    // For each line in bet slip on submission, create the line instance on backend if it doesnt already exist
+    let configObj = {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "http://localhost:3000"
+      },
+      body: JSON.stringify({
+        user_id: this.state.userId,
+        risk: this.state.risk,
+        bet_type: betType,
+        odds: this.state.multiplier,
+        wins: this.state.risk * (this.state.multiplier - 1).toFixed(2)
+
+      })
+    }
+
+    fetch(`http://localhost:3001/bets`, configObj)
+      .then(resp => resp.json())
+      .then(bet => {
+        lines.forEach((line) => {
+          let bodyHash
+          if (line.getAttribute('type') === 'moneyline') {
+            bodyHash = {
+              bet_id: bet.id,
+              team: line.getAttribute('team'),
+              line_type: line.getAttribute('type'),
+              odds: line.innerText,
+              opponent: line.getAttribute('opponent')
+            }
+          } else {
+            bodyHash = {
+              bet_id: bet.id,
+              team: line.getAttribute('team'),
+              line_type: line.getAttribute('type'),
+              odds: line.getAttribute('odds'),
+              opponent: line.getAttribute('opponent'),
+              spread: line.getAttribute('spread')
+
+            }
+          }
+          let obj = {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Access-Control-Allow-Origin": "http://localhost:3000"
+            },
+            body: JSON.stringify(bodyHash)
+          }
+          fetch(`http://localhost:3001/lines`, obj)
+
+        })
+      })
+
+
+  }
+
+  getPlacedBets = (type) => {
+    let endpoint
+    if (type === "Pending") {
+      endpoint = "pending_bets"
+    } else {
+      endpoint = "past_bets"
+    }
+    fetch(`http://localhost:3001/users/${this.state.userId}/${endpoint}`)
+      .then(resp => resp.json())
+      .then(bets => {
+        this.setState({
+          showBets: bets,
+          showBetsType: type,
+        })
+      })
+  }
+
+  getBetLines = (betId) => {
+    //Get lines associated with this bet instance
+    fetch(`http://localhost:3001/bets/${betId}/lines`)
+      .then(resp => resp.json())
+      .then(lines => {
+        this.setState({
+          showLines: lines
+        })
+      })
+  }
+
+  //For Administrator only to grade lines and bets
+  gradeLines = (matchup) => {
+    //Get winning margin
+    let winningMargin = parseInt(matchup.winnerScore.value) - parseInt(matchup.loserScore.value)
+    fetch(`http://localhost:3001/lines/specific_team/${matchup.winner.value}`)
+      .then(resp => resp.json())
+      .then(data => {
+        //Grade winning team's lines
+        let lines = [...data]
+        lines.forEach((line) => {
+          if (line.result === "pending") {
+            if (line.line_type === "moneyline") {
+              line.result = "won"
+              //If line_type is spread
+            } else {
+              let spread = line.spread
+              if (spread >= 0) {
+                line.result = "won"
+              } else if (spread < 0 && Math.abs(spread) > winningMargin) {
+                line.result = "lost"
+              } else if (spread < 0 && Math.abs(spread) < winningMargin) {
+                line.result = "won"
+              } else {
+                line.result = "push"
+              }
+            }
+            let configObj = {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              },
+              body: JSON.stringify({
+                result: line.result
+              })
+            }
+            //Update line on backend with new result then grade bets if applicable
+            fetch(`http://localhost:3001/lines/${line.id}`, configObj)
+              .then(resp => resp.json())
+              .then(data => {
+                data.bets.forEach((bet) => {
+                  //Need to slow this down
+                  this.gradeBets(data.line, bet)
+                })
+              })
+          }
+        })
+        //Grade losing team's lines
+        fetch(`http://localhost:3001/lines/specific_team/${matchup.loser.value}`)
+          .then(resp => resp.json())
+          .then(loserLines => {
+            loserLines.forEach((line) => {
+              if (line.result === "pending") {
+                if (line.line_type === "moneyline") {
+                  line.result = "lost"
+
+                  //If line_type is spread
+                } else {
+                  let spread = line.spread
+                  if (spread <= 0) {
+                    line.result = "lost"
+                  } else if (spread > 0 && spread > winningMargin) {
+                    line.result = "won"
+                  } else if (spread > 0 && spread < winningMargin) {
+                    line.result = "lost"
+                  } else {
+                    line.result = "push"
+                  }
+                }
+                let obj = {
+                  method: "PATCH",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                  },
+                  body: JSON.stringify({
+                    result: line.result
+                  })
+                }
+                //Update line on backend with new result
+                fetch(`http://localhost:3001/lines/${line.id}`, obj)
+                  .then(resp => resp.json())
+                  .then(data => {
+                    data.bets.forEach((bet) => {
+                      this.gradeBets(data.line, bet)
+                    })
+                  })
+                }
+              })
+          
+          })
+  })
+}
+
+gradeBets = async (line, bet) => {
+  let wonAmount = 0
+  if (line.result === "won") {
+    bet.legs_left -= 1
+    bet.atleast_one_winner = "true"
+    if (bet.legs_left === 0) {
+      bet.result = "won"
+      wonAmount = bet.risk + bet.wins
+    }
+  } else if (line.result === "push") {
+    bet.legs_left -= 1
+    //If the only line left in a bet is a spread that pushes then check to see if there is any leg of bet that has won
+    if (bet.legs_left === 0) {
+      //If there is atleast one winning line in the bet
+      if (bet.atleast_one_winner === "true") {
+        bet.odds = bet.odds / line.odds
+        bet.result = "won"
+        bet.wins = (bet.odds - 1) * bet.risk
+        wonAmount = bet.risk + bet.wins
+        //If there have been no winners and only pushes
+      } else {
+        bet.result = "push"
+        wonAmount = bet.risk
+      }
+      //If there are still more lines left to be settled
+    } else {
+      bet.odds = bet.odds / line.odds
+      bet.wins = (bet.odds - 1) * bet.risk
+    }
+    //If bet is a loss
+  } else {
+    bet.result = "lost"
+    wonAmount = 0
+  }
+
+  let configObj = {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      result: bet.result,
+      legs_left: bet.legs_left,
+      return: wonAmount,
+      wins: bet.wins,
+      atleast_one_winner: bet.atleast_one_winner,
+      odds: bet.odds
+
+    })
+  }
+  //Wait for each bet to be updated on backend before returning to process next bet
+  await fetch(`http://localhost:3001/bets/${bet.id}`, configObj)
+}
+
+
+render() {
+  document.body.style = 'background: gray;';
+  return (
+    <React.Fragment>
+      <Router>
+        <Navigation userCreateOrLogin={this.userCreateOrLogin} getPlacedBets={this.getPlacedBets} username={this.state.username} balance={this.state.balance} logout={this.logout} userId={this.state.userId} />
+        <Switch>
+          <div className="main">
+            <Route exact path="/" component={Home} />
+            <Route exact path="/account" render={(props) => (
+              <Account logout={this.logout} passwordChange={this.state.passwordChange} editPassword={this.editPassword} balance={this.state.balance} username={this.state.username} />
+            )} />
+            {/* <Route exact path="/menu" render={(props) => (this.state.userId === 0 ?
+              <Login userCreateOrLogin={this.userCreateOrLogin} /> :
+              null
+            )} /> */}
+            <Route exact path="/sports" render={(props) => (
+              <Sports getSportOdds={this.getSportOdds} />
+            )} />
+            <Route exact path="/sport" render={(props) => (
+              <Sport balance={this.state.balance} risk={this.state.risk} setRisk={this.setRisk} submitBets={this.submitBets} subtractFromSelectedLines={this.subtractFromSelectedLines} handleLineSelection={this.handleLineSelection} selectedLines={this.state.selectedLines} multiplier={this.state.multiplier} currentSport={this.state.currentSport} currentData={this.state.currentData} />
+            )} />
+            <Route exact path="/rules" component={Rules} />
+            <Route exact path="/cashier" render={(props) => (
+              <Cashier makeWithdraw={this.makeWithdraw} makeDeposit={this.makeDeposit} balance={this.state.balance} />
+            )} />
+            <Route exact path="/showBets" render={(props) => (
+              <ShowBets showBetsType={this.state.showBetsType} getBetLines={this.getBetLines} showLines={this.state.showLines} showBets={this.state.showBets} />
+            )} />
+            <Route exact path="/grade" render={(props) => (
+              <Grade gradeLines={this.gradeLines} />
+            )} />
+          </div>
+        </Switch>
+      </Router>
+    </React.Fragment>
+  );
+}
 }
 
 export default App;
