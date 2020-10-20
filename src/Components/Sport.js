@@ -3,6 +3,8 @@ import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 import Line from './Line.js'
 import Betslip from './Betslip.js'
 import { Circle } from 'react-awesome-spinners'
+import Unavailable from './Unavailable.js'
+
 class Sport extends React.Component {
 
     state = {
@@ -81,7 +83,8 @@ class Sport extends React.Component {
         return (
             <>
             {/* until currentData is fully loaded show a loading spinner */}
-            {this.props.currentData.length===0 ? <div><Circle/><Circle/> <Circle/> <Circle/></div>  : 
+            {this.props.sportUnavailable===true ? <Unavailable /> : 
+            this.props.currentData.length===0 ? <div><Circle/><Circle/> <Circle/> <Circle/></div>  : 
             <div>
                 <Container>
                     <Row className="odd-row">

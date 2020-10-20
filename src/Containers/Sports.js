@@ -7,9 +7,7 @@ class Sports extends React.Component {
         return (
             <div>
                 <DropdownButton
-                    className="sportbutton"
                     key='right'
-                    id='dropdown-button-drop-right'
                     drop='right'
                     size='lg'
                     variant="secondary"
@@ -19,10 +17,9 @@ class Sports extends React.Component {
                     <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds('americanfootball_nfl', 'us', "NFL FOOTBALL")}} as={Link} to="/sport">NFL</Dropdown.Item>
                     <Dropdown.Item eventKey="2" onClick={()=>{this.props.getSportOdds('americanfootball_ncaaf', 'us', "NCAA FOOTBALL")}} as={Link} to="/sport">NCAAF</Dropdown.Item>
                 </DropdownButton>
+                <br/>
                 <DropdownButton
-                    className="sportbutton"
                     key='right'
-                    id='dropdown-button-drop-right'
                     drop='right'
                     size='lg'
                     variant="secondary"
@@ -30,22 +27,20 @@ class Sports extends React.Component {
                 >
                     <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("baseball_mlb", 'us', "Major League Baseball")}} as={Link} to="/sport">MLB</Dropdown.Item>
                 </DropdownButton>
+                <br/>
                 <DropdownButton
-                    className="sportbutton"
                     key='right'
-                    id='dropdown-button-drop-right'
                     drop='right'
                     size='lg'
                     variant="secondary"
                     title="Basketball"
                 >
-                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("basketball_nba", 'us', "National Basketball Association")}} as={Link} to="/unavailable">NBA</Dropdown.Item>
+                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("basketball_nba", 'us', "National Basketball Association")}} as={Link} to="/sport">NBA</Dropdown.Item>
                     <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("basketball_euroleague", 'eu', "EuroLeague")}} as={Link} to="/sport">Euroleague</Dropdown.Item>
                 </DropdownButton>
+                <br/>
                 <DropdownButton
-                    className="sportbutton"
                     key='right'
-                    id='dropdown-button-drop-right'
                     drop='right'
                     size='lg'
                     variant="secondary"

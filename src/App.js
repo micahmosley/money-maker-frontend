@@ -11,8 +11,6 @@ import Rules from './Components/Rules';
 import Cashier from './Components/Cashier';
 import ShowBets from './Components/ShowBets';
 import Grade from './Components/Grade';
-import Unavailable from './Components/Unavailable';
-
 
 class App extends React.Component {
 
@@ -33,6 +31,7 @@ class App extends React.Component {
     showBetsType: "",
     error: "",
     showError:false,
+    sportUnavailable:false,
 
   }
 
@@ -143,13 +142,21 @@ class App extends React.Component {
                 }
               })
             })
-
-            setTimeout(() => {
+            if (odds.length===0){
               this.setState({
-                currentData: odds,
-                currentSport: league
+                sportUnavailable:true
               })
-            }, 100)
+            } else {
+              setTimeout(() => {
+                this.setState({
+                  currentData: odds,
+                  currentSport: league,
+                  sportUnavailable:false
+                })
+              }, 100)
+            }
+            
+
           })
 
 
@@ -300,7 +307,7 @@ class App extends React.Component {
         risk: this.state.risk,
         bet_type: betType,
         odds: this.state.multiplier,
-        wins: this.state.risk * (this.state.multiplier - 1).toFixed(2)
+        wins: (this.state.risk * (this.state.multiplier - 1)).toFixed(2)
 
       })
     }
@@ -470,7 +477,7 @@ class App extends React.Component {
           })
   
 }
-
+//Runs every time a line is graded
 gradeBets = async (line, bet) => {
   let wonAmount = 0
   if (line.result === "won") {
@@ -529,10 +536,11 @@ gradeBets = async (line, bet) => {
   await fetch(`http://localhost:3001/bets/${bet.id}`, configObj)
 }
 
+//Sets currentData to empty array each time sports tab is clicked on nav bar
 setLoadingScreen=()=>{
-  console.log('entered')
   this.setState({
-    currentData:[]
+    currentData:[],
+    sportUnavailable:false
   })
 }
 
@@ -558,7 +566,7 @@ render() {
               <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
             <Route exact path="/sport" render={(props) => (
-              this.state.userId!==0 ? <Sport balance={this.state.balance} risk={this.state.risk} setRisk={this.setRisk} submitBets={this.submitBets} subtractFromSelectedLines={this.subtractFromSelectedLines} handleLineSelection={this.handleLineSelection} selectedLines={this.state.selectedLines} multiplier={this.state.multiplier} currentSport={this.state.currentSport} currentData={this.state.currentData} /> :
+              this.state.userId!==0 ? <Sport sportUnavailable={this.state.sportUnavailable} balance={this.state.balance} risk={this.state.risk} setRisk={this.setRisk} submitBets={this.submitBets} subtractFromSelectedLines={this.subtractFromSelectedLines} handleLineSelection={this.handleLineSelection} selectedLines={this.state.selectedLines} multiplier={this.state.multiplier} currentSport={this.state.currentSport} currentData={this.state.currentData} /> :
               <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
             <Route exact path="/rules" component={Rules} />
@@ -572,10 +580,6 @@ render() {
             )} />
             <Route exact path="/grade" render={(props) => (
               this.state.userId!==0 ? <Grade gradeLines={this.gradeLines} /> :
-              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
-            )} />
-            <Route exact path="/unavailable" render={(props) => (
-              this.state.userId!==0 ? <Unavailable  /> :
               <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
           </div>
