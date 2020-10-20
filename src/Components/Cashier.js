@@ -45,21 +45,25 @@ class Cashier extends React.Component {
         
         return (
             <div>
-            <h1>Cashier</h1>
+            <br/>
+            <div className="info">
+            {this.props.userId!==1 ? 
+            <div>
+            <h1 className="info-header">Cashier</h1>
             <br/>
             <br/>
             <h2>Current Balance: ${this.props.balance}</h2>
             <br/>
             <br/>
-            <h2>Deposit Options</h2>
+            <h2 className="info-header">Deposit Options</h2>
             <ul>
-                <li><img src="./images/bitcoin.png" alt="bitcoin"/>  <Button variant="dark" onClick={this.handleShow}>Deposit</Button></li>
-                <li><img src="./images/credit.jpeg" alt="credit cards"/> <Button variant="dark" onClick={this.handleShow}>Deposit</Button></li>
+                <li><img className="cashier-image" src="./images/bitcoin.png" alt="bitcoin"/>  <Button variant="dark" onClick={this.handleShow}>Deposit</Button></li>
+                <li><img className="cashier-image" src="./images/credit.jpeg" alt="credit cards"/> <Button variant="dark" onClick={this.handleShow}>Deposit</Button></li>
             </ul>
-            <h2>Withdrawal Options</h2>
+            <h2 className="info-header">Withdrawal Options</h2>
             <ul>
-                <li><img src="./images/bitcoin.png" alt="bitcoin"/>  <Button variant="dark" onClick={this.handleShowWithdraw}>Withdraw</Button></li>
-                <li><img src="./images/banks.png" alt="banks"/> <Button variant="dark" onClick={this.handleShowWithdraw}>Withdraw</Button></li>
+                <li><img className="cashier-image" src="./images/bitcoin.png" alt="bitcoin"/>  <Button variant="dark" onClick={this.handleShowWithdraw}>Withdraw</Button></li>
+                <li><img className="cashier-image" src="./images/banks.png" alt="banks"/> <Button variant="dark" onClick={this.handleShowWithdraw}>Withdraw</Button></li>
             </ul>
 
             <Modal show={this.state.show} onHide={this.handleClose}>
@@ -90,7 +94,9 @@ class Cashier extends React.Component {
                             Withdraw
                         </Button>
                     </Modal.Footer>
-            </Modal>
+            </Modal> </div>: null}
+            </div>
+            <br/>
             </div>
         )
     };

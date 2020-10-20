@@ -37,10 +37,10 @@ class Sports extends React.Component {
                     drop='right'
                     size='lg'
                     variant="secondary"
-                    title="Soccer"
+                    title="Basketball"
                 >
-                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("soccer_epl", 'uk', "English Premier League")}} as={Link} to="/sport">Premier League</Dropdown.Item>
-                    <Dropdown.Item eventKey="2" onClick={()=>{this.props.getSportOdds('soccer_usa_mls', 'us', "Major League Soccer")}} as={Link} to="/sport">MLS</Dropdown.Item>
+                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("basketball_nba", 'us', "National Basketball Association")}} as={Link} to="/unavailable">NBA</Dropdown.Item>
+                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("basketball_euroleague", 'eu', "EuroLeague")}} as={Link} to="/sport">Euroleague</Dropdown.Item>
                 </DropdownButton>
                 <DropdownButton
                     className="sportbutton"
@@ -49,10 +49,12 @@ class Sports extends React.Component {
                     drop='right'
                     size='lg'
                     variant="secondary"
-                    title="MMA"
+                    title="Soccer"
                 >
-                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("mma_mixed_martial_arts", 'us', "Mixed Martial Arts")}} as={Link} to="/sport">MMA</Dropdown.Item>
+                    <Dropdown.Item eventKey="1" onClick={()=>{this.props.getSportOdds("soccer_epl", 'uk', "English Premier League")}} as={Link} to="/sport">Premier League</Dropdown.Item>
+                    <Dropdown.Item eventKey="2" onClick={()=>{this.props.getSportOdds('soccer_usa_mls', 'us', "Major League Soccer")}} as={Link} to="/sport">MLS</Dropdown.Item>
                 </DropdownButton>
+                
             </div>
         )
     };

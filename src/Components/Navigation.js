@@ -39,7 +39,7 @@ handleClose=()=>{
             <Nav className="mr-auto">
               {this.props.userId === 0 ? <Nav.Link onClick={this.handleShowSignup}>Signup</Nav.Link> :
                 <NavDropdown title="Menu" id="basic-nav-dropdown">
-                  <NavDropdown.Item as={Link} to="/sports">Sports</NavDropdown.Item>
+                  <NavDropdown.Item onClick={this.props.setLoadingScreen} as={Link} to="/sports">Sports</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/rules">Rules</NavDropdown.Item>
                   {/* Allow Grading privileges for administrator only */}
                   {this.props.userId === 1 ? <NavDropdown.Item as={Link} to="/grade">Grade</NavDropdown.Item> : null}

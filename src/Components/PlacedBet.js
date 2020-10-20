@@ -29,7 +29,7 @@ class PlacedBet extends React.Component {
         return (
             <>
 
-                <Row  onClick={this.seeMore}>
+                <Row  className="odd-row" onClick={this.seeMore}>
                     {this.props.bet.result==="won" ? 
                     <>
                     <Col lg={2} text="green" className="col">{this.props.bet.result}</Col> 
@@ -40,6 +40,11 @@ class PlacedBet extends React.Component {
                     <Col lg={2} text="red" className="col">{this.props.bet.result}</Col> 
                     <Col lg={6} text="red" className="col">{`${new Date(this.props.bet.created_at)}`} <br/> {this.props.bet.bet_type}</Col>
                     <Col lg={4} text="red" className="col">risk: ${this.props.bet.risk} To Win: ${this.props.bet.wins}</Col> </>:
+                    this.props.bet.result==="push" ?
+                    <>
+                    <Col lg={2} text="orange" className="col">{this.props.bet.result}</Col> 
+                    <Col lg={6} text="orange" className="col">{`${new Date(this.props.bet.created_at)}`} <br/> {this.props.bet.bet_type}</Col>
+                    <Col lg={4} text="orange" className="col">risk: ${this.props.bet.risk} To Win: ${this.props.bet.wins}</Col> </>:
                     <>
                     <Col lg={2} text="pending" className="col">{this.props.bet.result}</Col> 
                     <Col lg={6} text="pending" className="col">{`${new Date(this.props.bet.created_at)}`} <br/> {this.props.bet.bet_type}</Col>
@@ -72,6 +77,11 @@ class PlacedBet extends React.Component {
                                 <Col lg={5} >Odds</Col>
                                 <Col lg={7} >{this.props.bet.odds.toFixed(2)}</Col>
                             </Row>
+                            {this.props.bet.atleast_one_push==="true" ? 
+                            <Row >
+                                <Col lg={5} >Current Odds</Col>
+                                <Col lg={7} >{this.props.bet.current_odds.toFixed(2)}</Col>
+                            </Row> : null }
                             <Row >
                                 <Col lg={5} >Risk</Col>
                                 <Col lg={7} >${this.props.bet.risk}</Col>
@@ -115,8 +125,14 @@ class PlacedBet extends React.Component {
                                 <>
                                 <Col lg={3} text="red" className="col">{line.result}</Col>
                                 <Col lg={3} text="red" className="col">{line.team} <br/>{line.spread ? line.spread : null} ({line.odds})</Col>
-                                <Col lg={6} text="lred"className="col">{line.team} v {line.opponent}</Col>
+                                <Col lg={6} text="red"className="col">{line.team} v {line.opponent}</Col>
                                 </> : 
+                                 line.result==="push" ? 
+                                 <>
+                                 <Col lg={3} text="orange" className="col">{line.result}</Col>
+                                 <Col lg={3} text="orange" className="col">{line.team} <br/>{line.spread ? line.spread : null} ({line.odds})</Col>
+                                 <Col lg={6} text="orange"className="col">{line.team} v {line.opponent}</Col>
+                                 </> : 
                                 <>
                                 <Col lg={3} text="pending" className="col">{line.result}</Col>
                                 <Col lg={3} text="pending" className="col">{line.team} <br/>{line.spread ? line.spread : null} ({line.odds})</Col>

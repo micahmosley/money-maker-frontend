@@ -22,25 +22,29 @@ class Grade extends React.Component {
 
     render() {
         return (
-            <>
-            <h1>Grade Lines</h1>
+            <div>
+            <br/>
+            <div className="info-account">
+            <h1 className="info-header">Grade Lines</h1><br/><br/>
                <form onSubmit={this.gradeMatchup}>
-                <label>Winner</label>
+                <h3 className="info-header">Winner</h3><br/>
                 <input name="winner"></input>
-                <br/>
-                <label>Score</label>
+                <br/><br/>
+                <h3 className="info-header">Winner Score</h3><br/>
                 <input name="winnerScore"></input>
-                <br/>
-                <label>Loser</label>
+                <br/><br/>
+                <h3 className="info-header">Loser</h3><br/>
                 <input name="loser"></input>
-                <br/>
-                <label>Score</label>
-                <input name="loserScore"></input>
+                <br/><br/>
+                <h3 className="info-header">Loser Score</h3><br/>
+                <input name="loserScore"></input><br/><br/>
                 <input type="submit" value="Grade Matchup" />
                </form>
                 <br/>
                <h3 id="grade" className="hidden" text="green">Matchup Graded Successfully!</h3>
-            </>
+               </div>
+               </div>
+            
         )
     };
 

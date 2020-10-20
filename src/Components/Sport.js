@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 import Line from './Line.js'
 import Betslip from './Betslip.js'
+import { Circle } from 'react-awesome-spinners'
 class Sport extends React.Component {
 
     state = {
@@ -79,10 +80,13 @@ class Sport extends React.Component {
     render() {
         return (
             <>
+            {/* until currentData is fully loaded show a loading spinner */}
+            {this.props.currentData.length===0 ? <div><Circle/><Circle/> <Circle/> <Circle/></div>  : 
+            <div>
                 <Container>
                     <Row className="odd-row">
-                        <Col className="col" lg={10}>{this.props.currentSport}</Col>
-                        <Col className="col" lg={2}><Button buttontype="line" variant="light" onClick={this.handleShow}>Betslip: {this.props.selectedLines.length}</Button></Col>
+                        <Col id="sport-name" className="col" lg={10}>{this.props.currentSport}</Col>
+                        <Col className="col" lg={2}><Button buttontype="line" variant="secondary" onClick={this.handleShow}>Betslip: {this.props.selectedLines.length}</Button></Col>
                     </Row>
                     {this.props.currentData.map((game) => <Line key={game.home_team} game={game} handleLineSelection={this.props.handleLineSelection} />)}
                 </Container>
@@ -102,7 +106,7 @@ class Sport extends React.Component {
                             {this.state.exceedMax === true ? <h3 id="exceedsMax">Risk exceeds max allowable bet</h3> : null}
                         </Modal.Body> :
                         <Modal.Body>
-                            <h1 outcome="won">Bet was successfully placed!</h1>
+                            <h1 text="green">Bet was successfully placed!</h1>
                         </Modal.Body> }
                         <Modal.Footer>
                             {this.props.selectedLines.length!==0 ? 
@@ -111,6 +115,7 @@ class Sport extends React.Component {
                             </Button> : null}
                         </Modal.Footer>
                 </Modal>
+                </div>}
             </>
 
 

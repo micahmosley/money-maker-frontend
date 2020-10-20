@@ -3,8 +3,6 @@ import './App.css';
 import Navigation from './Components/Navigation';
 import Home from './Components/Home';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import SignUp from './Components/SignUp';
-import Login from './Components/Login';
 import Account from './Components/Account';
 import Sport from './Components/Sport';
 import Sports from './Containers/Sports';
@@ -13,6 +11,7 @@ import Rules from './Components/Rules';
 import Cashier from './Components/Cashier';
 import ShowBets from './Components/ShowBets';
 import Grade from './Components/Grade';
+import Unavailable from './Components/Unavailable';
 
 
 class App extends React.Component {
@@ -32,7 +31,15 @@ class App extends React.Component {
     winnerLinesToGrade: [],
     loserLinesToGrade: [],
     showBetsType: "",
+    error: "",
+    showError:false,
 
+  }
+
+  hideError=()=>{
+    this.setState({
+      showError:false
+    })
   }
 
   userCreateOrLogin = (e, type) => {
@@ -67,11 +74,10 @@ class App extends React.Component {
   signUpLoginResponse = (user) => {
     /*If the login/signup was unsuccessful*/
     if (user.error) {
-
-
-
-
-
+      this.setState({
+        error:user.error,
+        showError:true,
+      })
     } else {
       this.setState({
         userId: user.id,
@@ -371,6 +377,7 @@ class App extends React.Component {
 
   //For Administrator only to grade lines and bets
   gradeLines = (matchup) => {
+
     //Get winning margin
     let winningMargin = parseInt(matchup.winnerScore.value) - parseInt(matchup.loserScore.value)
     fetch(`http://localhost:3001/lines/specific_team/${matchup.winner.value}`)
@@ -416,6 +423,7 @@ class App extends React.Component {
               })
           }
         })
+      })
         //Grade losing team's lines
         fetch(`http://localhost:3001/lines/specific_team/${matchup.loser.value}`)
           .then(resp => resp.json())
@@ -460,7 +468,7 @@ class App extends React.Component {
               })
           
           })
-  })
+  
 }
 
 gradeBets = async (line, bet) => {
@@ -478,9 +486,9 @@ gradeBets = async (line, bet) => {
     if (bet.legs_left === 0) {
       //If there is atleast one winning line in the bet
       if (bet.atleast_one_winner === "true") {
-        bet.odds = bet.odds / line.odds
+        bet.current_odds = bet.current_odds / line.odds
         bet.result = "won"
-        bet.wins = (bet.odds - 1) * bet.risk
+        bet.wins = (bet.current_odds - 1) * bet.risk
         wonAmount = bet.risk + bet.wins
         //If there have been no winners and only pushes
       } else {
@@ -489,8 +497,9 @@ gradeBets = async (line, bet) => {
       }
       //If there are still more lines left to be settled
     } else {
-      bet.odds = bet.odds / line.odds
-      bet.wins = (bet.odds - 1) * bet.risk
+      bet.atleast_one_push="true"
+      bet.current_odds = bet.current_odds / line.odds
+      bet.wins = (bet.current_odds - 1) * bet.risk
     }
     //If bet is a loss
   } else {
@@ -510,7 +519,9 @@ gradeBets = async (line, bet) => {
       return: wonAmount,
       wins: bet.wins,
       atleast_one_winner: bet.atleast_one_winner,
-      odds: bet.odds
+      odds: bet.odds,
+      current_odds: bet.current_odds,
+      atleast_one_push: bet.atleast_one_push
 
     })
   }
@@ -518,38 +529,54 @@ gradeBets = async (line, bet) => {
   await fetch(`http://localhost:3001/bets/${bet.id}`, configObj)
 }
 
+setLoadingScreen=()=>{
+  console.log('entered')
+  this.setState({
+    currentData:[]
+  })
+}
+
 
 render() {
-  document.body.style = 'background: gray;';
+  // document.body.style = 'background: gray;';
   return (
     <React.Fragment>
       <Router>
-        <Navigation userCreateOrLogin={this.userCreateOrLogin} getPlacedBets={this.getPlacedBets} username={this.state.username} balance={this.state.balance} logout={this.logout} userId={this.state.userId} />
+        <Navigation setLoadingScreen={this.setLoadingScreen} userCreateOrLogin={this.userCreateOrLogin} getPlacedBets={this.getPlacedBets} username={this.state.username} balance={this.state.balance} logout={this.logout} userId={this.state.userId} />
         <Switch>
           <div className="main">
-            <Route exact path="/" component={Home} />
-            <Route exact path="/account" render={(props) => (
-              <Account logout={this.logout} passwordChange={this.state.passwordChange} editPassword={this.editPassword} balance={this.state.balance} username={this.state.username} />
+            <Route exact path="/" render={(props) => (
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
-            {/* <Route exact path="/menu" render={(props) => (this.state.userId === 0 ?
-              <Login userCreateOrLogin={this.userCreateOrLogin} /> :
-              null
-            )} /> */}
+            <Route exact path="/account" render={(props) => (
+              this.state.userId!==0 ? <Account logout={this.logout} passwordChange={this.state.passwordChange} editPassword={this.editPassword} balance={this.state.balance} username={this.state.username} /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
+            )} />
+          
             <Route exact path="/sports" render={(props) => (
-              <Sports getSportOdds={this.getSportOdds} />
+              this.state.userId!==0 ? <Sports getSportOdds={this.getSportOdds} /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
             <Route exact path="/sport" render={(props) => (
-              <Sport balance={this.state.balance} risk={this.state.risk} setRisk={this.setRisk} submitBets={this.submitBets} subtractFromSelectedLines={this.subtractFromSelectedLines} handleLineSelection={this.handleLineSelection} selectedLines={this.state.selectedLines} multiplier={this.state.multiplier} currentSport={this.state.currentSport} currentData={this.state.currentData} />
+              this.state.userId!==0 ? <Sport balance={this.state.balance} risk={this.state.risk} setRisk={this.setRisk} submitBets={this.submitBets} subtractFromSelectedLines={this.subtractFromSelectedLines} handleLineSelection={this.handleLineSelection} selectedLines={this.state.selectedLines} multiplier={this.state.multiplier} currentSport={this.state.currentSport} currentData={this.state.currentData} /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
             <Route exact path="/rules" component={Rules} />
             <Route exact path="/cashier" render={(props) => (
-              <Cashier makeWithdraw={this.makeWithdraw} makeDeposit={this.makeDeposit} balance={this.state.balance} />
+              this.state.userId!==0 ? <Cashier userId={this.state.userId} makeWithdraw={this.makeWithdraw} makeDeposit={this.makeDeposit} balance={this.state.balance} /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
             <Route exact path="/showBets" render={(props) => (
-              <ShowBets showBetsType={this.state.showBetsType} getBetLines={this.getBetLines} showLines={this.state.showLines} showBets={this.state.showBets} />
+              this.state.userId!==0 ? <ShowBets showBetsType={this.state.showBetsType} getBetLines={this.getBetLines} showLines={this.state.showLines} showBets={this.state.showBets} /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
             <Route exact path="/grade" render={(props) => (
-              <Grade gradeLines={this.gradeLines} />
+              this.state.userId!==0 ? <Grade gradeLines={this.gradeLines} /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
+            )} />
+            <Route exact path="/unavailable" render={(props) => (
+              this.state.userId!==0 ? <Unavailable  /> :
+              <Home error={this.state.error} showError={this.state.showError} hideError={this.hideError}/>
             )} />
           </div>
         </Switch>
