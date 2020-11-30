@@ -1,5 +1,5 @@
 # MoneyMaker
-> A full-stack online sportsbook where users can place bets on their favorite sporting events.
+> A full-stack online sportsbook where users can place bets on their favorite sporting events. 
 
 ## Table of contents
 * [Project Video](#project-video)
@@ -13,7 +13,7 @@
 [View demo of MoneyMaker](https://www.youtube.com/watch?v=5-1OlIyXph4)
 
 ## Inspiration
-Since the Supreme Court lifted the ban on sports betting in the United States in May of 2018, 19 states have legalized sports gambling either in person or online. Many more states will soon follow as America is seeing a sports betting “boom.” It’s no surprise to see the popularity of sports gambling when you consider how popular sports are in America with the fact that many people find gambling to be a thrill. With this in mind I decided to try my hand at building a fully functioning online sportsbook using React on the frontend and Ruby on Rails on the backend.
+Ever since the Supreme Court lifted the ban on sports betting in the United States in May of 2018, 19 states have legalized sports gambling either in person or online. Many more states will soon follow as America is seeing a sports betting “boom.” It’s no surprise to see the popularity of sports gambling when you consider how popular sports are in America with the fact that many people find gambling to be a thrill. With this in mind I decided to try my hand at building a fully functioning online sportsbook using React on the frontend and Ruby on Rails on the backend.
 
 ## Technologies
 ### Backend Development 
