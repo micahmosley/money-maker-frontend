@@ -227,7 +227,6 @@ class App extends React.Component {
   }
 
   makeDeposit = (amount) => {
-
     let configObj = {
       method: "PATCH",
       headers: {
@@ -384,7 +383,6 @@ class App extends React.Component {
 
   //For Administrator only to grade lines and bets
   gradeLines = (matchup) => {
-
     //Get winning margin
     let winningMargin = parseInt(matchup.winnerScore.value) - parseInt(matchup.loserScore.value)
     fetch(`http://localhost:3001/lines/specific_team/${matchup.winner.value}`)
@@ -437,6 +435,7 @@ class App extends React.Component {
           .then(loserLines => {
             loserLines.forEach((line) => {
               if (line.result === "pending") {
+                //If line_type is moneyline
                 if (line.line_type === "moneyline") {
                   line.result = "lost"
 
@@ -477,7 +476,8 @@ class App extends React.Component {
           })
   
 }
-//Runs every time a line is graded
+//Runs every time a line is graded to check if any bets can be graded as a result of that line's result
+//Async function so each fetch at end is only made if previous fetch's promise has been resolved
 gradeBets = async (line, bet) => {
   let wonAmount = 0
   if (line.result === "won") {

@@ -27,7 +27,7 @@ class Sport extends React.Component {
         })
     }
 
-    handleBetslip = (e) => {
+     handleBetslip = (e) => {
         //If the wager risk is not greater than the user's balance, close modal and submit bets 
         if (this.props.balance >= this.props.risk) {
             this.setState({
